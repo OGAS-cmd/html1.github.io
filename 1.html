@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财富冒险家：金融王国挑战赛</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', '微软雅黑', sans-serif;
+        }
+        
+        body {
+            background: radial-gradient(circle at top left, #2c3e50, #1a2a3a);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f0f8ff;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(25, 35, 45, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            border: 1px solid #4a90e2;
+        }
+        
+        /* 顶部状态栏 */
+        .status-bar {
+            display: flex;
+            background: rgba(30, 40, 55, 0.95);
+            padding: 15px 25px;
+            border-bottom: 2px solid #4a90e2;
+        }
+        
+        .status-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-right: 1px dashed #5d7b9d;
+        }
+        
+        .status-item:last-child {
+            border-right: none;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffcc00;
+            margin-top: 5px;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        /* 左侧任务和事件区 */
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .card {
+            background: rgba(40, 50, 65, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            border: 1px solid #5d7b9d;
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            color: #4fc3f7;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 任务列表 */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .task {
+            background: rgba(50, 65, 85, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            transition: all 0.3s;
+            border: 1px solid #3a506b;
+        }
+        
+        .task:hover {
+            transform: translateY(-3px);
+            background: rgba(55, 75, 95, 0.9);
+            border-color: #4a90e2;
+        }
+        
+        .task-info h3 {
+            color: #a5d6a7;
+            margin-bottom: 8px;
+        }
+        
+        .task-desc {
+            font-size: 0.9rem;
+            color: #bbdefb;
+            margin-bottom: 10px;
+        }
+        
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #90a4ae;
+        }
+        
+        .task-action {
+            background: linear-gradient(to right, #00c853, #64dd17);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 3px 8px rgba(0, 200, 83, 0.3);
+        }
+        
+        .task-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 200, 83, 0.5);
+        }
+        
+        /* 事件区 */
+        .event-card {
+            background: rgba(65, 45, 90, 0.7);
+            border: 1px solid #7c4dff;
+        }
+        
+        .event-title {
+            color: #b388ff;
+        }
+        
+        .event-content {
+            padding: 15px;
+            background: rgba(55, 35, 75, 0.5);
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+        
+        .event-choices {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .event-choice {
+            padding: 15px;
+            background: rgba(45, 25, 65, 0.8);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #7c4dff;
+        }
+        
+        .event-choice:hover {
+            background: rgba(85, 45, 120, 0.9);
+            transform: translateY(-3px);
+        }
+        
+        /* 右侧资产和操作区 */
+        .right-panel {
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        /* 资产卡片 */
+        .assets-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .asset-card {
+            background: rgba(45, 65, 80, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid #29b6f6;
+        }
+        
+        .asset-card:hover {
+            transform: scale(1.03);
+            background: rgba(55, 85, 100, 0.9);
+        }
+        
+        .asset-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #4fc3f7;
+        }
+        
+        .asset-income {
+            color: #69f0ae;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        /* 商店 */
+        .shop-card {
+            background: rgba(80, 45, 65, 0.7);
+            border: 1px solid #f48fb1;
+        }
+        
+        .shop-title {
+            color: #f48fb1;
+        }
+        
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .shop-item {
+            background: rgba(70, 35, 55, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #f48fb1;
+        }
+        
+        .shop-item:hover {
+            background: rgba(100, 45, 75, 0.9);
+            transform: translateY(-5px);
+        }
+        
+        .item-cost {
+            color: #ffcc80;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        /* 底部控制区 */
+        .control-bar {
+            display: flex;
+            padding: 15px 25px;
+            background: rgba(30, 40, 55, 0.95);
+            border-top: 2px solid #4a90e2;
+        }
+        
+        .control-btn {
+            flex: 1;
+            padding: 15px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(to right, #2979ff, #2962ff);
+            color: white;
+            box-shadow: 0 4px 10px rgba(41, 121, 255, 0.3);
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(41, 121, 255, 0.5);
+        }
+        
+        .invest-btn {
+            background: linear-gradient(to right, #00c853, #64dd17);
+            box-shadow: 0 4px 10px rgba(0, 200, 83, 0.3);
+        }
+        
+        /* 通知系统 */
+        .notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .notification {
+            background: rgba(30, 40, 50, 0.95);
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.5s, fadeOut 0.5s 4.5s forwards;
+            max-width: 300px;
+            border-left: 4px solid #4fc3f7;
+        }
+        
+        .notification.income {
+            border-color: #69f0ae;
+        }
+        
+        .notification.expense {
+            border-color: #ff8a80;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        /* 进度条 */
+        .goal-progress {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(35, 45, 60, 0.7);
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9800, #ffcc80);
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .right-panel {
+                width: 100%;
+            }
+            
+            .status-bar {
+                flex-wrap: wrap;
+            }
+            
+            .status-item {
+                min-width: 45%;
+                border-right: none;
+                border-bottom: 1px dashed #5d7b9d;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div>现金</div>
+                <div class="stat-value" id="cash">500</div>
+                <div>元</div>
+            </div>
+            <div class="status-item">
+                <div>银行存款</div>
+                <div class="stat-value" id="bank">200</div>
+                <div>元</div>
+            </div>
+            <div class="status-item">
+                <div>总资产</div>
+                <div class="stat-value" id="total">700</div>
+                <div>元</div>
+            </div>
+            <div class="status-item">
+                <div>月收入</div>
+                <div class="stat-value" id="income">150</div>
+                <div>元/月</div>
+            </div>
+            <div class="status-item">
+                <div>游戏周数</div>
+                <div class="stat-value" id="week">1</div>
+                <div>周</div>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <div class="left-panel">
+                <!-- 任务卡 -->
+                <div class="card">
+                    <h2 class="card-title">📋 挑战任务</h2>
+                    <div class="task-list">
+                        <div class="task">
+                            <div class="task-info">
+                                <h3>创业计划：柠檬水摊</h3>
+                                <p class="task-desc">购买柠檬水制作工具，在公园开设摊位</p>
+                                <div class="task-meta">
+                                    <div class="meta-item">💵 投资: 120元</div>
+                                    <div class="meta-item">📈 月收入: +40元</div>
+                                    <div class="meta-item">⏱️ 耗时: 2周</div>
+                                </div>
+                            </div>
+                            <button class="task-action">开始创业</button>
+                        </div>
+                        <div class="task">
+                            <div class="task-info">
+                                <h3>学习投资课程</h3>
+                                <p class="task-desc">参加青少年投资培训，提升理财技能</p>
+                                <div class="task-meta">
+                                    <div class="meta-item">💵 费用: 80元</div>
+                                    <div class="meta-item">📚 效果: 投资回报+20%</div>
+                                    <div class="meta-item">⏱️ 耗时: 1周</div>
+                                </div>
+                            </div>
+                            <button class="task-action">报名学习</button>
+                        </div>
+                        <div class="task">
+                            <div class="task-info">
+                                <h3>社区志愿服务</h3>
+                                <p class="task-desc">为社区老人提供帮助，获得社区认可</p>
+                                <div class="task-meta">
+                                    <div class="meta-item">💵 收入: 30元</div>
+                                    <div class="meta-item">❤️ 社区关系: +20</div>
+                                    <div class="meta-item">⏱️ 耗时: 1周</div>
+                                </div>
+                            </div>
+                            <button class="task-action">参加服务</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 事件卡 -->
+                <div class="card event-card">
+                    <h2 class="card-title event-title">🎲 本周事件：市场波动</h2>
+                    <div class="event-content">
+                        <p>由于天气异常炎热，冷饮需求大增！所有冷饮相关投资回报提升30%，但水果进货价格上涨20%。</p>
+                        <div class="event-choices">
+                            <div class="event-choice">
+                                <h3>🍹 投资冷饮摊</h3>
+                                <p>投资150元，下月回报60元</p>
+                            </div>
+                            <div class="event-choice">
+                                <h3>🍉 囤积水果</h3>
+                                <p>花费100元储备水果，降低未来成本</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 目标进度 -->
+                <div class="card">
+                    <h2 class="card-title">🏆 财富目标：自行车 (1200元)</h2>
+                    <div class="goal-progress">
+                        <div class="progress-header">
+                            <div>当前进度: 700元</div>
+                            <div>还需: 500元</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress" style="width: 58%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <!-- 资产组合 -->
+                <div class="card">
+                    <h2 class="card-title">💼 我的资产</h2>
+                    <div class="assets-grid">
+                        <div class="asset-card">
+                            <div class="asset-icon">🏦</div>
+                            <h3>定期存款</h3>
+                            <div class="stat-value">200元</div>
+                            <div class="asset-income">月利息: 2元</div>
+                        </div>
+                        <div class="asset-card">
+                            <div class="asset-icon">🍋</div>
+                            <h3>柠檬水摊</h3>
+                            <div class="stat-value">120元</div>
+                            <div class="asset-income">月收入: 40元</div>
+                        </div>
+                        <div class="asset-card">
+                            <div class="asset-icon">📚</div>
+                            <h3>学习基金</h3>
+                            <div class="stat-value">80元</div>
+                            <div class="asset-income">回报率: +20%</div>
+                        </div>
+                        <div class="asset-card">
+                            <div class="asset-icon">🤝</div>
+                            <h3>社区关系</h3>
+                            <div class="stat-value">20点</div>
+                            <div class="asset-income">机会: +15%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 梦想商店 -->
+                <div class="card shop-card">
+                    <h2 class="card-title shop-title">🛒 梦想商店</h2>
+                    <div class="shop-items">
+                        <div class="shop-item">
+                            <div class="asset-icon">🚴</div>
+                            <h3>山地自行车</h3>
+                            <div class="item-cost">1200元</div>
+                        </div>
+                        <div class="shop-item">
+                            <div class="asset-icon">💻</div>
+                            <h3>游戏笔记本</h3>
+                            <div class="item-cost">3500元</div>
+                        </div>
+                        <div class="shop-item">
+                            <div class="asset-icon">🏕️</div>
+                            <h3>夏令营体验</h3>
+                            <div class="item-cost">800元</div>
+                        </div>
+                        <div class="shop-item">
+                            <div class="asset-icon">🎸</div>
+                            <h3>电吉他套装</h3>
+                            <div class="item-cost">1800元</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 银行操作 -->
+                <div class="card">
+                    <h2 class="card-title">🏦 银行服务</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                        <button class="task-action" style="background: linear-gradient(to right, #2979ff, #2962ff);">存入50元</button>
+                        <button class="task-action" style="background: linear-gradient(to right, #ff5252, #ff867f);">取出50元</button>
+                        <button class="task-action" style="background: linear-gradient(to right, #651fff, #7c4dff);">申请贷款</button>
+                        <button class="task-action" style="background: linear-gradient(to right, #00bcd4, #26c6da);">购买保险</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部控制栏 -->
+        <div class="control-bar">
+            <button class="control-btn invest-btn">💰 投资机会</button>
+            <button class="control-btn">📈 查看股市</button>
+            <button class="control-btn">⏭️ 进入下周</button>
+        </div>
+    </div>
+    
+    <div class="notifications" id="notifications"></div>
+    
+    <script>
+        // 高级游戏状态
+        const gameState = {
+            cash: 500,
+            bank: 200,
+            week: 1,
+            assets: {
+                deposit: { value: 200, income: 2 },
+                lemonade: { value: 0, income: 0 },
+                knowledge: { value: 0, income: 0 },
+                community: { value: 0, income: 0 }
+            },
+            goals: [
+                { name: "山地自行车", cost: 1200, progress: 700 },
+                { name: "游戏笔记本", cost: 3500, progress: 0 }
+            ],
+            monthlyIncome: 150,
+            events: []
+        };
+        
+        // 更新UI显示
+        function updateUI() {
+            document.getElementById('cash').textContent = gameState.cash;
+            document.getElementById('bank').textContent = gameState.bank;
+            document.getElementById('total').textContent = gameState.cash + gameState.bank;
+            document.getElementById('income').textContent = calculateTotalIncome();
+            document.getElementById('week').textContent = gameState.week;
+            
+            // 更新进度条
+            const goal = gameState.goals[0];
+            const progress = Math.min(100, Math.floor(goal.progress / goal.cost * 100));
+            document.getElementById('progress').style.width = progress + '%';
+            
+            // 更新资产显示
+            updateAssetsDisplay();
+        }
+        
+        // 计算总收入
+        function calculateTotalIncome() {
+            return gameState.monthlyIncome + 
+                gameState.assets.deposit.income +
+                gameState.assets.lemonade.income;
+        }
+        
+        // 更新资产显示
+        function updateAssetsDisplay() {
+            // 在实际实现中，这里会更新每个资产的显示值
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notifications = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notifications.appendChild(notification);
+            
+            // 5秒后移除通知
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        // 初始化任务按钮
+        function setupTaskButtons() {
+            const taskButtons = document.querySelectorAll('.task-action');
+            taskButtons.forEach((button, index) => {
+                button.addEventListener('click', function() {
+                    handleTaskAction(index);
+                });
+            });
+        }
+        
+        // 处理任务动作
+        function handleTaskAction(taskIndex) {
+            switch(taskIndex) {
+                case 0: // 柠檬水摊
+                    if (gameState.cash >= 120) {
+                        gameState.cash -= 120;
+                        gameState.assets.lemonade.value = 120;
+                        gameState.assets.lemonade.income = 40;
+                        showNotification('🍋 柠檬水摊开业啦！每月收入增加40元', 'income');
+                        updateUI();
+                    } else {
+                        showNotification('⚠️ 现金不足，无法创业！', 'expense');
+                    }
+                    break;
+                case 1: // 投资课程
+                    if (gameState.cash >= 80) {
+                        gameState.cash -= 80;
+                        gameState.assets.knowledge.value = 80;
+                        showNotification('📚 投资课程完成！所有投资收益提升20%', 'income');
+                        updateUI();
+                    } else {
+                        showNotification('⚠️ 现金不足，无法报名课程！', 'expense');
+                    }
+                    break;
+                case 2: // 社区服务
+                    gameState.cash += 30;
+                    gameState.assets.community.value += 20;
+                    showNotification('❤️ 社区服务完成！获得30元和20点社区关系', 'income');
+                    updateUI();
+                    break;
+            }
+            
+            // 禁用已点击的按钮
+            this.disabled = true;
+            this.textContent = '进行中...';
+            this.style.background = 'linear-gradient(to right, #9e9e9e, #bdbdbd)';
+        }
+        
+        // 初始化事件选择
+        function setupEventChoices() {
+            const choices = document.querySelectorAll('.event-choice');
+            choices.forEach((choice, index) => {
+                choice.addEventListener('click', function() {
+                    handleEventChoice(index);
+                });
+            });
+        }
+        
+        // 处理事件选择
+        function handleEventChoice(choiceIndex) {
+            const eventCard = document.querySelector('.event-card');
+            
+            switch(choiceIndex) {
+                case 0: // 投资冷饮摊
+                    if (gameState.cash >= 150) {
+                        gameState.cash -= 150;
+                        gameState.monthlyIncome += 60;
+                        showNotification('🍹 投资冷饮摊成功！每月收入增加60元', 'income');
+                        eventCard.style.display = 'none';
+                        updateUI();
+                    } else {
+                        showNotification('⚠️ 现金不足，无法投资冷饮摊！', 'expense');
+                    }
+                    break;
+                case 1: // 囤积水果
+                    if (gameState.cash >= 100) {
+                        gameState.cash -= 100;
+                        showNotification('🍉 水果储备完成！未来三个月成本降低20%', 'income');
+                        eventCard.style.display = 'none';
+                        updateUI();
+                    } else {
+                        showNotification('⚠️ 现金不足，无法囤积水果！', 'expense');
+                    }
+                    break;
+            }
+        }
+        
+        // 进入下一周
+        function advanceWeek() {
+            gameState.week++;
+            
+            // 每4周发一次月收入
+            if (gameState.week % 4 === 0) {
+                const monthlyIncome = calculateTotalIncome();
+                gameState.cash += monthlyIncome;
+                showNotification(`💰 收到月收入：${monthlyIncome}元`, 'income');
+                
+                // 更新目标进度
+                gameState.goals[0].progress = gameState.cash + gameState.bank;
+            }
+            
+            // 随机事件
+            if (Math.random() > 0.7) {
+                showRandomEvent();
+            }
+            
+            updateUI();
+        }
+        
+        // 显示随机事件
+        function showRandomEvent() {
+            const events = [
+                {
+                    title: "科技热潮",
+                    description: "新型游戏机发布，电子产品需求大增！",
+                    choices: [
+                        { text: "投资科技股", action: "投资200元，可能获得高回报" },
+                        { text: "观望市场", action: "不进行投资，避免风险" }
+                    ]
+                },
+                {
+                    title: "天气灾害",
+                    description: "暴雨导致部分商品运输困难，物价上涨！",
+                    choices: [
+                        { text: "购买保险", action: "支付50元保险费，减少损失" },
+                        { text: "承担风险", action: "希望损失不会太大" }
+                    ]
+                },
+                {
+                    title: "社区机会",
+                    description: "社区举办创业大赛，提供奖金支持！",
+                    choices: [
+                        { text: "参加比赛", action: "花费时间准备，可能赢得奖金" },
+                        { text: "专注现有事业", action: "不分散精力" }
+                    ]
+                }
+            ];
+            
+            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            const eventCard = document.querySelector('.event-card');
+            const eventTitle = eventCard.querySelector('.event-title');
+            const eventContent = eventCard.querySelector('.event-content');
+            
+            eventTitle.innerHTML = `🎲 本周事件：${randomEvent.title}`;
+            eventContent.innerHTML = `
+                <p>${randomEvent.description}</p>
+                <div class="event-choices">
+                    <div class="event-choice">
+                        <h3>${randomEvent.choices[0].text}</h3>
+                        <p>${randomEvent.choices[0].action}</p>
+                    </div>
+                    <div class="event-choice">
+                        <h3>${randomEvent.choices[1].text}</h3>
+                        <p>${randomEvent.choices[1].action}</p>
+                    </div>
+                </div>
+            `;
+            
+            eventCard.style.display = 'block';
+            setupEventChoices();
+        }
+        
+        // 初始化游戏
+        function initGame() {
+            updateUI();
+            setupTaskButtons();
+            setupEventChoices();
+            
+            // 设置"进入下周"按钮
+            document.querySelectorAll('.control-btn')[2].addEventListener('click', advanceWeek);
+            
+            // 显示欢迎消息
+            setTimeout(() => {
+                showNotification('欢迎来到财富冒险家！通过投资和决策建立你的金融帝国！');
+            }, 1000);
+            
+            // 5秒后显示第一个随机事件
+            setTimeout(showRandomEvent, 5000);
+        }
+        
+        // 启动游戏
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
